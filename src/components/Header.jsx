@@ -1,0 +1,333 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Bell, Menu, RefreshCw, Search, User } from 'lucide-react';
+
+const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
+  const formatLastUpdated = (date) => {
+    if (!date) return 'Never';
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return date.toLocaleDateString();
+  };
+
+  return (
+    <motion.header 
+      className="header"
+      initial={{ y: -60 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <div className="header-content">
+        {/* Left Section */}
+        <div className="header-left">
+          <motion.button
+            className="menu-toggle"
+            onClick={onMenuToggle}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Menu size={20} />
+          </motion.button>
+
+          <div className="header-title">
+            <h1 className="title-cyber">DataPulse Command Center</h1>
+            <p className="subtitle-cyber">Live Store Activity Dashboard</p>
+          </div>
+        </div>
+
+        {/* Center Section */}
+        <div className="header-center">
+          <div className="search-container">
+            <Search className="search-icon" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search data..."
+              className="search-input"
+            />
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="header-right">
+          <div className="status-info">
+            <span className="status-label">Last Update:</span>
+            <span className="status-value">{formatLastUpdated(lastUpdated)}</span>
+          </div>
+
+          <motion.button
+            className={`refresh-btn ${loading ? 'loading' : ''}`}
+            onClick={onRefresh}
+            disabled={loading}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <RefreshCw className={`refresh-icon ${loading ? 'spinning' : ''}`} size={16} />
+            <span>Refresh</span>
+          </motion.button>
+
+          <motion.button
+            className="notification-btn"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Bell size={16} />
+            <span className="notification-badge">3</span>
+          </motion.button>
+
+          <motion.button
+            className="profile-btn"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <User size={16} />
+          </motion.button>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .header {
+          height: 70px;
+          background: var(--bg-glass-dark);
+          backdrop-filter: blur(20px);
+          border-bottom: var(--border-glass);
+          position: fixed;
+          top: 0;
+          left: 250px;
+          right: 0;
+          z-index: 90;
+          display: flex;
+          align-items: center;
+        }
+
+        .header-content {
+          width: 100%;
+          padding: 0 var(--spacing-lg);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--spacing-lg);
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+          flex: 1;
+        }
+
+        .menu-toggle {
+          display: none;
+          background: transparent;
+          border: none;
+          color: var(--text-secondary);
+          cursor: pointer;
+          padding: var(--spacing-sm);
+          border-radius: var(--border-radius);
+          transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+          color: var(--cyber-blue);
+          background: rgba(0, 255, 255, 0.1);
+        }
+
+        .header-title h1 {
+          font-size: 1.5rem;
+          margin: 0;
+          margin-bottom: 2px;
+        }
+
+        .header-title p {
+          font-size: 0.8rem;
+          margin: 0;
+          opacity: 0.8;
+        }
+
+        .header-center {
+          flex: 1;
+          max-width: 400px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .search-container {
+          position: relative;
+          width: 100%;
+        }
+
+        .search-icon {
+          position: absolute;
+          left: var(--spacing-sm);
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-muted);
+        }
+
+        .search-input {
+          width: 100%;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: var(--border-radius);
+          padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm) 2.5rem;
+          color: var(--text-primary);
+          font-family: var(--font-secondary);
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+          color: var(--text-muted);
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: var(--cyber-blue);
+          box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-md);
+          flex: 1;
+          justify-content: flex-end;
+        }
+
+        .status-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          font-size: 0.8rem;
+        }
+
+        .status-label {
+          color: var(--text-muted);
+        }
+
+        .status-value {
+          color: var(--cyber-blue);
+          font-family: var(--font-primary);
+          font-weight: 600;
+        }
+
+        .refresh-btn {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-xs);
+          background: rgba(0, 255, 255, 0.1);
+          border: 1px solid rgba(0, 255, 255, 0.3);
+          border-radius: var(--border-radius);
+          padding: var(--spacing-sm) var(--spacing-md);
+          color: var(--cyber-blue);
+          font-family: var(--font-secondary);
+          font-size: 0.8rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+          background: rgba(0, 255, 255, 0.2);
+          box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .refresh-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .refresh-icon {
+          transition: transform 0.3s ease;
+        }
+
+        .refresh-icon.spinning {
+          animation: spin 1s linear infinite;
+        }
+
+        .notification-btn,
+        .profile-btn {
+          position: relative;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-secondary);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover,
+        .profile-btn:hover {
+          color: var(--cyber-blue);
+          border-color: rgba(0, 255, 255, 0.3);
+          background: rgba(0, 255, 255, 0.1);
+        }
+
+        .notification-badge {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          background: var(--cyber-pink);
+          color: white;
+          font-size: 0.7rem;
+          font-weight: 600;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+          .header {
+            left: 0;
+          }
+
+          .menu-toggle {
+            display: flex;
+          }
+
+          .header-center {
+            display: none;
+          }
+
+          .status-info {
+            display: none;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .header-title h1 {
+            font-size: 1.2rem;
+          }
+
+          .header-title p {
+            display: none;
+          }
+
+          .refresh-btn span {
+            display: none;
+          }
+        }
+      `}</style>
+    </motion.header>
+  );
+};
+
+export default Header;
