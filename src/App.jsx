@@ -27,7 +27,7 @@ const App = () => {
     // Handle dynamic dashboard updates from chatbot responses
     console.log('Dashboard update requested:', updateData);
     
-    // Example: Force refresh if chatbot suggests it
+    // Force refresh if chatbot suggests it
     if (updateData.refresh || updateData.refreshDashboard) {
       refresh();
     }
@@ -37,8 +37,42 @@ const App = () => {
       setActiveView(updateData.navigateTo);
     }
     
-    // You can add more update logic here based on the webhook response
-    // For example: update specific KPIs, highlight certain data, etc.
+    // Handle direct data updates without full refresh
+    if (updateData.dataUpdates && !updateData.refresh) {
+      // This would require updating the useDashboardData hook to accept direct data updates
+      // For now, we'll log it and could implement state updates here
+      console.log('Direct data updates received:', updateData.dataUpdates);
+      // You could implement direct state updates here to avoid full refresh
+      // setData(updateData.dataUpdates); // This would need to be exposed from the hook
+    }
+    
+    // Handle UI-specific updates (highlighting, animations, etc.)
+    if (updateData.uiUpdates) {
+      console.log('UI updates requested:', updateData.uiUpdates);
+      // Could trigger specific UI animations or highlights
+      // This could involve setting temporary state for UI effects
+    }
+    
+    // Handle custom actions
+    if (updateData.customActions && updateData.customActions.length > 0) {
+      updateData.customActions.forEach(action => {
+        console.log('Executing custom action:', action);
+        // Handle custom actions based on action type
+        switch (action.type) {
+          case 'highlight_kpi':
+            // Could add CSS classes or state to highlight specific KPIs
+            break;
+          case 'show_notification':
+            // Could show toast notifications
+            break;
+          case 'update_filters':
+            // Could update table or chart filters
+            break;
+          default:
+            console.log('Unknown custom action:', action);
+        }
+      });
+    }
   };
 
   const handleChatbotNavigation = (viewName) => {

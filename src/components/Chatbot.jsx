@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, MessageCircle, X, Bot, User } from 'lucide-react';
-import { sendChatMessage, generateDashboardContext, handleChatbotCommand, formatN8nResponse } from '../services/chatbotService';
+import { sendChatMessage, generateDashboardContext, handleChatbotCommand, formatN8nResponse, processDashboardUpdate, applyDataUpdates } from '../services/chatbotService';
 
 const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeView, onNavigate }) => {
   const [messages, setMessages] = useState([
@@ -91,6 +91,7 @@ const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeVie
       
       let botReply;
       let shouldUpdateDashboard = false;
+      let dashboardUpdates = null;
       
       if (webhookResponse.success) {
         // Use the enhanced response formatter
@@ -105,26 +106,43 @@ const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeVie
           console.log('Using local command response as fallback:', botReply);
         }
         
-        // Check for dashboard update instructions from n8n
-        const data = webhookResponse.data;
-        if (data && (data.updateDashboard || data.refresh || data.refreshDashboard || data.navigateTo)) {
-          console.log('Dashboard update requested by n8n:', data);
+        // Process dashboard update instructions from n8n
+        dashboardUpdates = processDashboardUpdate(webhookResponse);
+        console.log('Processed dashboard updates:', dashboardUpdates);
+        
+        if (dashboardUpdates.shouldRefreshData || 
+            dashboardUpdates.shouldNavigateTo || 
+            dashboardUpdates.dataUpdates ||
+            dashboardUpdates.uiUpdates ||
+            dashboardUpdates.customActions.length > 0) {
           shouldUpdateDashboard = true;
           
           if (onUpdateDashboard) {
+            // Apply data updates directly if provided
+            let updatedData = null;
+            if (dashboardUpdates.dataUpdates && dashboardData) {
+              updatedData = applyDataUpdates(dashboardData, dashboardUpdates.dataUpdates);
+            }
+            
             onUpdateDashboard({
-              refresh: data.refresh || data.refreshDashboard || data.updateDashboard,
-              navigateTo: data.navigateTo,
-              ...data
+              refresh: dashboardUpdates.shouldRefreshData,
+              navigateTo: dashboardUpdates.shouldNavigateTo,
+              dataUpdates: updatedData,
+              uiUpdates: dashboardUpdates.uiUpdates,
+              highlightKPIs: dashboardUpdates.shouldHighlightKPIs,
+              filters: dashboardUpdates.shouldUpdateFilters,
+              customActions: dashboardUpdates.customActions,
+              ...webhookResponse.data
             });
           }
         }
       } else {
-        // Connection failed, use local command response as fallback
-        console.log('Webhook failed, using local response:', webhookResponse.error);
+        // Connection failed, use friendly error message
+        console.log('Webhook failed, using friendly error message:', webhookResponse.error);
         setConnectionStatus('disconnected');
-        botReply = localCommand.response || 
-                  'The server is not responding, please try again. I\'m still here to help when the connection is restored!';
+        botReply = webhookResponse.friendlyMessage || 
+                  localCommand.response || 
+                  'Sorry, I couldn\'t connect to the data service. Please try again later.';
       }
 
       const botMessage = {

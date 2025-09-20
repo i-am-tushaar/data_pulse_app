@@ -4,7 +4,7 @@
 
 import { logN8nRequest, logN8nResponse } from '../utils/debugger';
 
-const WEBHOOK_URL = 'https://n8n-8t66.onrender.com/webhook-test/dashboard';
+const WEBHOOK_URL = 'https://n8n.srv1019914.hstgr.cloud/webhook/data_pulse';
 
 /**
  * Send message to chatbot webhook with enhanced error handling
@@ -89,7 +89,8 @@ export const sendChatMessage = async (message, context = {}) => {
     return {
       success: false,
       error: error.message,
-      details: error.stack
+      details: error.stack,
+      friendlyMessage: 'Sorry, I couldn\'t connect to the data service. Please try again later.'
     };
   }
 };
@@ -193,7 +194,9 @@ export const processDashboardUpdate = (webhookResponse) => {
     shouldHighlightKPIs: [],
     shouldUpdateFilters: null,
     shouldNavigateTo: null,
-    customActions: []
+    customActions: [],
+    dataUpdates: null,
+    uiUpdates: null
   };
 
   if (!webhookResponse.data) {
@@ -227,7 +230,59 @@ export const processDashboardUpdate = (webhookResponse) => {
     updates.customActions = response.actions;
   }
 
+  // Check for direct data updates
+  if (response.dataUpdates) {
+    updates.dataUpdates = response.dataUpdates;
+  }
+
+  // Check for UI updates
+  if (response.uiUpdates) {
+    updates.uiUpdates = response.uiUpdates;
+  }
+
   return updates;
+};
+
+/**
+ * Apply data updates directly to dashboard data
+ * @param {Object} currentData - Current dashboard data
+ * @param {Object} dataUpdates - Updates from webhook
+ * @returns {Object} Updated dashboard data
+ */
+export const applyDataUpdates = (currentData, dataUpdates) => {
+  if (!currentData || !dataUpdates) {
+    return currentData;
+  }
+
+  const updatedData = { ...currentData };
+
+  // Update KPIs if provided
+  if (dataUpdates.kpis) {
+    Object.keys(dataUpdates.kpis).forEach(key => {
+      if (updatedData[key] !== undefined) {
+        updatedData[key] = dataUpdates.kpis[key];
+      }
+    });
+  }
+
+  // Update raw data if provided
+  if (dataUpdates.rawData && Array.isArray(dataUpdates.rawData)) {
+    updatedData.rawData = dataUpdates.rawData;
+    // Recalculate derived data
+    updatedData.totalOrders = dataUpdates.rawData.length;
+    // Add more recalculations as needed
+  }
+
+  // Update charts data if provided
+  if (dataUpdates.charts) {
+    Object.keys(dataUpdates.charts).forEach(chartKey => {
+      if (updatedData[chartKey]) {
+        updatedData[chartKey] = dataUpdates.charts[chartKey];
+      }
+    });
+  }
+
+  return updatedData;
 };
 
 /**
