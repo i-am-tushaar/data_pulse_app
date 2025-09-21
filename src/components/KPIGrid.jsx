@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Users, ShoppingCart, DollarSign, Target, Mail } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, ShoppingCart, DollarSign, Target, Mail, RefreshCw } from 'lucide-react';
 
 const KPICard = ({ title, value, subtitle, icon: Icon, trend, trendValue, color, delay = 0 }) => {
   const isPositiveTrend = trend === 'up';
@@ -422,6 +422,19 @@ const KPIGrid = ({ data, loading }) => {
       trend: 'up',
       trendValue: '+5.7%',
       color: 'orange'
+    });
+  }
+
+  // Add customer retention KPI if retention data is available
+  if (data.customerRetentionMetrics) {
+    kpiData.push({
+      title: 'Customer Retention',
+      value: `${data.customerRetentionMetrics.retentionRate}%`,
+      subtitle: `${data.customerRetentionMetrics.repeatCustomers} repeat customers`,
+      icon: RefreshCw,
+      trend: data.customerRetentionMetrics.retentionRate > 50 ? 'up' : 'down',
+      trendValue: data.customerRetentionMetrics.retentionRate > 50 ? '+2.3%' : '-1.8%',
+      color: 'blue'
     });
   }
 

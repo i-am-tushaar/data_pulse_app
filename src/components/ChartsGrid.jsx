@@ -87,11 +87,13 @@ const RevenueTrendChart = ({ data }) => (
             dataKey="date" 
             stroke="#808080"
             fontSize={12}
+            tick={{ fill: '#808080' }}
             tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           />
           <YAxis 
             stroke="#808080"
             fontSize={12}
+            tick={{ fill: '#808080' }}
             tickFormatter={(value) => `₹${(value / 100000).toFixed(0)}L`}
           />
           <Tooltip content={<CustomTooltip />} />
@@ -106,6 +108,27 @@ const RevenueTrendChart = ({ data }) => (
           />
         </AreaChart>
       </ResponsiveContainer>
+    </div>
+    
+    <div className="key-findings">
+      <h4 className="findings-title">💰 Key Findings</h4>
+      <ul className="findings-list">
+        {data.revenueByDate?.length > 0 && (
+          <li className="finding-item highlight">
+            <strong>Peak Revenue:</strong> ₹{((Math.max(...data.revenueByDate.map(d => d.revenue))) / 100000).toFixed(1)}L on best day
+          </li>
+        )}
+        {data.revenueByDate?.length > 1 && (
+          <li className="finding-item">
+            Average daily revenue: ₹{((data.totalRevenue / data.revenueByDate.length) / 100000).toFixed(1)}L
+          </li>
+        )}
+        {data.revenueByDate?.some(d => d.revenue > 0) && (
+          <li className="finding-item">
+            Revenue trend shows {data.revenueByDate.slice(-7).reduce((sum, d) => sum + d.revenue, 0) > data.revenueByDate.slice(-14, -7).reduce((sum, d) => sum + d.revenue, 0) ? 'growing' : 'declining'} pattern
+          </li>
+        )}
+      </ul>
     </div>
   </motion.div>
 );
@@ -131,11 +154,13 @@ const OrdersTimelineChart = ({ data }) => (
             dataKey="date" 
             stroke="#808080"
             fontSize={12}
+            tick={{ fill: '#808080' }}
             tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           />
           <YAxis 
             stroke="#808080"
             fontSize={12}
+            tick={{ fill: '#808080' }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Line
@@ -148,6 +173,27 @@ const OrdersTimelineChart = ({ data }) => (
           />
         </LineChart>
       </ResponsiveContainer>
+    </div>
+    
+    <div className="key-findings">
+      <h4 className="findings-title">📋 Key Findings</h4>
+      <ul className="findings-list">
+        {data.ordersTimeline?.length > 0 && (
+          <li className="finding-item highlight">
+            <strong>Peak Orders:</strong> {Math.max(...data.ordersTimeline.map(d => d.orders))} orders on busiest day
+          </li>
+        )}
+        {data.ordersTimeline?.length > 1 && (
+          <li className="finding-item">
+            Average daily orders: {Math.round(data.totalOrders / data.ordersTimeline.length)} per day
+          </li>
+        )}
+        {data.ordersTimeline?.some(d => d.orders > 0) && (
+          <li className="finding-item">
+            Order pattern shows {data.ordersTimeline.slice(-7).reduce((sum, d) => sum + d.orders, 0) > data.ordersTimeline.slice(-14, -7).reduce((sum, d) => sum + d.orders, 0) ? 'increasing' : 'stable'} activity
+          </li>
+        )}
+      </ul>
     </div>
   </motion.div>
 );
@@ -194,6 +240,27 @@ const StateDistributionChart = ({ data }) => {
           </PieChart>
         </ResponsiveContainer>
       </div>
+      
+      <div className="key-findings">
+        <h4 className="findings-title">🗺️ Key Findings</h4>
+        <ul className="findings-list">
+          {data.stateDistribution?.length > 0 && (
+            <li className="finding-item highlight">
+              <strong>{data.stateDistribution[0].name}</strong> leads with {Math.round((data.stateDistribution[0].value / data.totalOrders) * 100)}% of orders
+            </li>
+          )}
+          {data.stateDistribution?.length > 1 && (
+            <li className="finding-item">
+              Top 3 states capture {Math.round((data.stateDistribution.slice(0, 3).reduce((sum, state) => sum + state.value, 0) / data.totalOrders) * 100)}% of market
+            </li>
+          )}
+          {data.stateDistribution?.length > 3 && (
+            <li className="finding-item">
+              Geographic spread across {data.stateDistribution.length} major states
+            </li>
+          )}
+        </ul>
+      </div>
     </motion.div>
   );
 };
@@ -213,35 +280,283 @@ const TopCitiesChart = ({ data }) => (
     
     <div className="chart-content">
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data.topCities.slice(0, 8)} layout="horizontal">
+        <BarChart data={data.topCities?.slice(0, 8) || []} layout="horizontal" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <defs>
+            <linearGradient id="cityGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="5%" stopColor="#8000ff" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="#ff0080" stopOpacity={0.8}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
           <XAxis 
             type="number"
             stroke="#808080"
             fontSize={12}
+            tick={{ fill: '#808080' }}
           />
           <YAxis 
             type="category"
             dataKey="name"
             stroke="#808080"
             fontSize={12}
-            width={80}
+            width={100}
+            tick={{ fill: '#808080' }}
+            interval={0}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip 
+            content={<CustomTooltip />}
+            cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+          />
           <Bar 
             dataKey="value" 
             fill="url(#cityGradient)"
             radius={[0, 4, 4, 0]}
-          >
-            <defs>
-              <linearGradient id="cityGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="5%" stopColor="#8000ff" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#ff0080" stopOpacity={0.8}/>
-              </linearGradient>
-            </defs>
-          </Bar>
+            stroke="rgba(128, 0, 255, 0.5)"
+            strokeWidth={1}
+          />
         </BarChart>
       </ResponsiveContainer>
+    </div>
+    
+    <div className="key-findings">
+      <h4 className="findings-title">📍 Key Findings</h4>
+      <ul className="findings-list">
+        {data.topCities?.length > 0 && (
+          <li className="finding-item highlight">
+            <strong>{data.topCities[0].name}</strong> leads with {data.topCities[0].value} orders
+          </li>
+        )}
+        {data.topCities?.length > 1 && (
+          <li className="finding-item">
+            Top 3 cities account for {Math.round((data.topCities.slice(0, 3).reduce((sum, city) => sum + city.value, 0) / data.totalOrders) * 100)}% of total orders
+          </li>
+        )}
+        {data.topCities?.length > 5 && (
+          <li className="finding-item">
+            Geographic concentration: {data.topCities.length} cities generating significant order volume
+          </li>
+        )}
+      </ul>
+    </div>
+  </motion.div>
+);
+
+// Customer Growth Trend Chart
+const CustomerGrowthChart = ({ data }) => (
+  <motion.div
+    className="chart-container"
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, delay: 0.5 }}
+  >
+    <div className="chart-header">
+      <h3 className="chart-title">Customer Growth Trend</h3>
+      <p className="chart-subtitle">Active customer base growth over time</p>
+    </div>
+    
+    <div className="chart-content">
+      <ResponsiveContainer width="100%" height={300}>
+        <AreaChart data={data.customerGrowthTrend || []}>
+          <defs>
+            <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#00ff41" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="#00ff41" stopOpacity={0.1}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+          <XAxis 
+            dataKey="date" 
+            stroke="#808080"
+            fontSize={12}
+            tick={{ fill: '#808080' }}
+            tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          />
+          <YAxis 
+            stroke="#808080"
+            fontSize={12}
+            tick={{ fill: '#808080' }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Area
+            type="monotone"
+            dataKey="cumulativeCustomers"
+            stroke="#00ff41"
+            strokeWidth={2}
+            fill="url(#growthGradient)"
+            dot={{ fill: "#00ff41", strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, stroke: "#00ff41", strokeWidth: 2, fill: "#00ff41" }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+    
+    <div className="key-findings">
+      <h4 className="findings-title">📈 Key Findings</h4>
+      <ul className="findings-list">
+        {data.customerGrowthTrend?.length > 0 && (
+          <li className="finding-item highlight">
+            <strong>Total Growth:</strong> {data.customerGrowthTrend[data.customerGrowthTrend.length - 1]?.cumulativeCustomers || 0} customers acquired
+          </li>
+        )}
+        {data.customerGrowthTrend?.length > 1 && (
+          <li className="finding-item">
+            Average daily growth: {Math.round((data.customerGrowthTrend.reduce((sum, day) => sum + day.newCustomers, 0) / data.customerGrowthTrend.length) * 10) / 10} new customers per day
+          </li>
+        )}
+        {data.customerGrowthTrend?.some(day => day.newCustomers > 0) && (
+          <li className="finding-item">
+            Growth trajectory shows {data.customerGrowthTrend.filter(day => day.newCustomers > 0).length > data.customerGrowthTrend.length * 0.7 ? 'consistent' : 'variable'} customer acquisition
+          </li>
+        )}
+      </ul>
+    </div>
+  </motion.div>
+);
+
+// Revenue by Category Chart
+const RevenueByCategoryChart = ({ data }) => (
+  <motion.div
+    className="chart-container"
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, delay: 0.6 }}
+  >
+    <div className="chart-header">
+      <h3 className="chart-title">Revenue by Category</h3>
+      <p className="chart-subtitle">Performance by product category</p>
+    </div>
+    
+    <div className="chart-content">
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={data.revenueByCategory || []} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <defs>
+            <linearGradient id="categoryGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#ffff00" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="#ff6b00" stopOpacity={0.8}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+          <XAxis 
+            dataKey="name"
+            stroke="#808080"
+            fontSize={12}
+            tick={{ fill: '#808080' }}
+            angle={-45}
+            textAnchor="end"
+            height={80}
+          />
+          <YAxis 
+            stroke="#808080"
+            fontSize={12}
+            tick={{ fill: '#808080' }}
+            tickFormatter={(value) => `₹${(value / 100000).toFixed(0)}L`}
+          />
+          <Tooltip 
+            content={<CustomTooltip />}
+            formatter={(value, name) => [
+              name === 'revenue' ? `₹${(value / 100000).toFixed(1)}L` : value,
+              name === 'revenue' ? 'Revenue' : 'Orders'
+            ]}
+          />
+          <Bar 
+            dataKey="revenue" 
+            fill="url(#categoryGradient)"
+            radius={[4, 4, 0, 0]}
+            stroke="rgba(255, 255, 0, 0.5)"
+            strokeWidth={1}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+    
+    <div className="key-findings">
+      <h4 className="findings-title">💰 Key Findings</h4>
+      <ul className="findings-list">
+        {data.revenueByCategory?.length > 0 && (
+          <li className="finding-item highlight">
+            <strong>{data.revenueByCategory[0].name}</strong> leads revenue with ₹{(data.revenueByCategory[0].revenue / 100000).toFixed(1)}L
+          </li>
+        )}
+        {data.revenueByCategory?.length > 1 && (
+          <li className="finding-item">
+            Top 3 categories generate {Math.round((data.revenueByCategory.slice(0, 3).reduce((sum, cat) => sum + cat.revenue, 0) / data.totalRevenue) * 100)}% of total revenue
+          </li>
+        )}
+        {data.revenueByCategory?.length > 2 && (
+          <li className="finding-item">
+            Revenue distribution across {data.revenueByCategory.length} product categories
+          </li>
+        )}
+      </ul>
+    </div>
+  </motion.div>
+);
+
+// Order Frequency Chart
+const OrderFrequencyChart = ({ data }) => (
+  <motion.div
+    className="chart-container"
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, delay: 0.7 }}
+  >
+    <div className="chart-header">
+      <h3 className="chart-title">Order Frequency</h3>
+      <p className="chart-subtitle">Customer purchase behavior analysis</p>
+    </div>
+    
+    <div className="chart-content">
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={data.orderFrequencyData || []} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <defs>
+            <linearGradient id="frequencyGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#ff0080" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="#8000ff" stopOpacity={0.8}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+          <XAxis 
+            dataKey="range"
+            stroke="#808080"
+            fontSize={12}
+            tick={{ fill: '#808080' }}
+          />
+          <YAxis 
+            stroke="#808080"
+            fontSize={12}
+            tick={{ fill: '#808080' }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar 
+            dataKey="customers" 
+            fill="url(#frequencyGradient)"
+            radius={[4, 4, 0, 0]}
+            stroke="rgba(255, 0, 128, 0.5)"
+            strokeWidth={1}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+    
+    <div className="key-findings">
+      <h4 className="findings-title">🔁 Key Findings</h4>
+      <ul className="findings-list">
+        {data.orderFrequencyData?.length > 0 && (
+          <li className="finding-item highlight">
+            <strong>{Math.round((data.customerRetentionMetrics?.oneTimeCustomers / data.uniqueCustomers) * 100)}%</strong> are one-time customers
+          </li>
+        )}
+        {data.customerRetentionMetrics && (
+          <li className="finding-item">
+            Customer retention rate: <strong>{data.customerRetentionMetrics.retentionRate}%</strong>
+          </li>
+        )}
+        {data.orderFrequencyData?.find(item => item.range.includes('10+')) && (
+          <li className="finding-item">
+            {data.orderFrequencyData.find(item => item.range.includes('10+')).customers} high-value repeat customers (10+ orders)
+          </li>
+        )}
+      </ul>
     </div>
   </motion.div>
 );
@@ -315,6 +630,9 @@ const ChartsGrid = ({ data, loading }) => {
       <OrdersTimelineChart data={data} />
       <StateDistributionChart data={data} />
       <TopCitiesChart data={data} />
+      <CustomerGrowthChart data={data} />
+      <RevenueByCategoryChart data={data} />
+      <OrderFrequencyChart data={data} />
 
       <style jsx>{`
         .charts-grid {
@@ -437,6 +755,74 @@ const ChartsGrid = ({ data, loading }) => {
           
           .chart-header {
             margin-bottom: var(--spacing-mobile-md);
+          }
+        }
+        
+        /* Key Findings Styles */
+        .key-findings {
+          margin-top: var(--spacing-lg);
+          padding-top: var(--spacing-md);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .findings-title {
+          font-family: var(--font-primary);
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--text-accent);
+          margin: 0 0 var(--spacing-sm) 0;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-xs);
+        }
+        
+        .findings-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .finding-item {
+          font-family: var(--font-secondary);
+          font-size: 0.8rem;
+          color: var(--text-secondary);
+          margin-bottom: var(--spacing-xs);
+          padding-left: var(--spacing-sm);
+          position: relative;
+          line-height: 1.4;
+        }
+        
+        .finding-item::before {
+          content: '▶';
+          position: absolute;
+          left: 0;
+          color: var(--text-accent);
+          font-size: 0.6rem;
+          top: 0.2em;
+        }
+        
+        .finding-item.highlight {
+          color: var(--text-primary);
+          font-weight: 500;
+        }
+        
+        .finding-item.highlight::before {
+          content: '⭐';
+          font-size: 0.7rem;
+        }
+        
+        @media (max-width: 768px) {
+          .key-findings {
+            margin-top: var(--spacing-mobile-md);
+            padding-top: var(--spacing-mobile-sm);
+          }
+          
+          .findings-title {
+            font-size: 0.85rem;
+          }
+          
+          .finding-item {
+            font-size: 0.75rem;
           }
         }
       `}</style>

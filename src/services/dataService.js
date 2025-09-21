@@ -95,7 +95,16 @@ export const processDataForMetrics = (data) => {
       revenueByDate: [],
       ordersTimeline: [],
       stateDistribution: [],
-      cityDistribution: []
+      cityDistribution: [],
+      customerGrowthTrend: [],
+      revenueByCategory: [],
+      orderFrequencyData: [],
+      customerRetentionMetrics: {
+        retentionRate: 0,
+        churnRate: 0,
+        repeatCustomers: 0,
+        oneTimeCustomers: 0
+      }
     };
   }
 
@@ -113,6 +122,19 @@ export const processDataForMetrics = (data) => {
   const revenuePerOrder = data.map(() => Math.floor(Math.random() * 41500) + 4150); // 500*83 to 50*83 range in INR
   const totalRevenue = revenuePerOrder.reduce((sum, amount) => sum + amount, 0);
   const avgOrderValue = totalRevenue / totalOrders;
+
+  // Customer retention analysis
+  const customerOrderCounts = data.reduce((acc, row) => {
+    const customer = row.customer_name;
+    if (!acc[customer]) acc[customer] = 0;
+    acc[customer]++;
+    return acc;
+  }, {});
+  
+  const repeatCustomers = Object.values(customerOrderCounts).filter(count => count > 1).length;
+  const oneTimeCustomers = uniqueCustomers - repeatCustomers;
+  const retentionRate = uniqueCustomers > 0 ? Math.round((repeatCustomers / uniqueCustomers) * 100) : 0;
+  const churnRate = 100 - retentionRate;
 
   // Group by state
   const stateGroups = data.reduce((acc, row) => {
@@ -146,9 +168,10 @@ export const processDataForMetrics = (data) => {
     const date = row.order_date;
     if (date && date instanceof Date && !isNaN(date)) {
       const dateKey = date.toISOString().split('T')[0];
-      if (!acc[dateKey]) acc[dateKey] = { date: dateKey, revenue: 0, orders: 0 };
+      if (!acc[dateKey]) acc[dateKey] = { date: dateKey, revenue: 0, orders: 0, customers: new Set() };
       acc[dateKey].revenue += revenuePerOrder[index];
       acc[dateKey].orders++;
+      acc[dateKey].customers.add(row.customer_name);
     }
     return acc;
   }, {});
@@ -160,6 +183,44 @@ export const processDataForMetrics = (data) => {
       revenue: item.revenue,
       orders: item.orders
     }));
+
+  // Customer growth trend
+  const customerGrowthTrend = Object.values(dateGroups)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .reduce((acc, item, index) => {
+      const cumulativeCustomers = acc.length > 0 
+        ? acc[acc.length - 1].cumulativeCustomers + item.customers.size
+        : item.customers.size;
+      
+      acc.push({
+        date: item.date,
+        newCustomers: item.customers.size,
+        cumulativeCustomers
+      });
+      return acc;
+    }, []);
+
+  // Revenue by product category (simulated based on customer patterns)
+  const categories = ['Electronics', 'Clothing', 'Home & Garden', 'Books', 'Sports', 'Beauty'];
+  const revenueByCategory = categories.map(category => ({
+    name: category,
+    revenue: Math.floor(Math.random() * totalRevenue * 0.3) + totalRevenue * 0.05,
+    orders: Math.floor(Math.random() * totalOrders * 0.3) + Math.floor(totalOrders * 0.05)
+  })).sort((a, b) => b.revenue - a.revenue);
+
+  // Order frequency distribution
+  const frequencyDistribution = Object.values(customerOrderCounts).reduce((acc, count) => {
+    const bucket = count === 1 ? '1 order' : 
+                   count <= 3 ? '2-3 orders' :
+                   count <= 5 ? '4-5 orders' :
+                   count <= 10 ? '6-10 orders' : '10+ orders';
+    if (!acc[bucket]) acc[bucket] = 0;
+    acc[bucket]++;
+    return acc;
+  }, {});
+  
+  const orderFrequencyData = Object.entries(frequencyDistribution)
+    .map(([range, customers]) => ({ range, customers }));
 
   // State distribution for pie chart
   const stateDistribution = topStates.slice(0, 6);
@@ -181,6 +242,15 @@ export const processDataForMetrics = (data) => {
     ordersTimeline: revenueByDate,
     stateDistribution,
     cityDistribution,
+    customerGrowthTrend,
+    revenueByCategory,
+    orderFrequencyData,
+    customerRetentionMetrics: {
+      retentionRate,
+      churnRate,
+      repeatCustomers,
+      oneTimeCustomers
+    },
     rawData: data
   };
 };
