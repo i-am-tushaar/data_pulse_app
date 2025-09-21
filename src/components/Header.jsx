@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Menu, RefreshCw, Search, User } from 'lucide-react';
+import { Bell, Menu, RefreshCw, Search, User, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
+const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle, onDesktopSidebarToggle, sidebarCollapsed }) => {
   const formatLastUpdated = (date) => {
     if (!date) return 'Never';
     const now = new Date();
@@ -18,7 +18,7 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
 
   return (
     <motion.header 
-      className="header"
+      className={`header ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}
       initial={{ y: -60 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -26,13 +26,26 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
       <div className="header-content">
         {/* Left Section */}
         <div className="header-left">
+          {/* Mobile Hamburger Menu */}
           <motion.button
-            className="menu-toggle"
+            className="menu-toggle mobile-only"
             onClick={onMenuToggle}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            aria-label="Toggle mobile menu"
           >
             <Menu size={20} />
+          </motion.button>
+
+          {/* Desktop Sidebar Toggle */}
+          <motion.button
+            className="sidebar-toggle desktop-only"
+            onClick={onDesktopSidebarToggle}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Toggle sidebar"
+          >
+            {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </motion.button>
 
           <div className="header-title">
@@ -103,6 +116,11 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
           z-index: 90;
           display: flex;
           align-items: center;
+          transition: left 0.3s ease;
+        }
+
+        .header.sidebar-collapsed {
+          left: 70px;
         }
 
         .header-content {
@@ -121,20 +139,35 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
           flex: 1;
         }
 
-        .menu-toggle {
-          display: none;
+        .menu-toggle,
+        .sidebar-toggle {
           background: transparent;
-          border: none;
+          border: 1px solid rgba(255, 255, 255, 0.1);
           color: var(--text-secondary);
           cursor: pointer;
           padding: var(--spacing-sm);
           border-radius: var(--border-radius);
           transition: all 0.3s ease;
+          min-height: var(--touch-target-min);
+          min-width: var(--touch-target-min);
+          align-items: center;
+          justify-content: center;
+          margin-right: var(--spacing-md);
         }
 
-        .menu-toggle:hover {
+        .menu-toggle:hover,
+        .sidebar-toggle:hover {
           color: var(--cyber-blue);
           background: rgba(0, 255, 255, 0.1);
+          border-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .mobile-only {
+          display: none;
+        }
+
+        .desktop-only {
+          display: flex;
         }
 
         .header-title h1 {
@@ -230,6 +263,7 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
           font-weight: 500;
           cursor: pointer;
           transition: all 0.3s ease;
+          min-height: var(--touch-target-min);
         }
 
         .refresh-btn:hover:not(:disabled) {
@@ -264,6 +298,8 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
           color: var(--text-secondary);
           cursor: pointer;
           transition: all 0.3s ease;
+          min-height: var(--touch-target-min);
+          min-width: var(--touch-target-min);
         }
 
         .notification-btn:hover,
@@ -294,13 +330,30 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
           to { transform: rotate(360deg); }
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .header {
             left: 0;
+            padding: 0;
+          }
+          
+          .header.sidebar-collapsed {
+            left: 0; /* Reset on mobile */
+          }
+          
+          .header-content {
+            padding: 0 var(--spacing-mobile-md);
+            gap: var(--spacing-mobile-sm);
           }
 
-          .menu-toggle {
+          .mobile-only {
             display: flex;
+            min-height: var(--touch-target-comfortable);
+            min-width: var(--touch-target-comfortable);
+          }
+
+          .desktop-only {
+            display: none;
           }
 
           .header-center {
@@ -310,9 +363,28 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
           .status-info {
             display: none;
           }
+          
+          .header-right {
+            gap: var(--spacing-mobile-sm);
+          }
+          
+          .notification-btn,
+          .profile-btn {
+            width: var(--touch-target-comfortable);
+            height: var(--touch-target-comfortable);
+          }
+          
+          .refresh-btn {
+            min-height: var(--touch-target-comfortable);
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
+          }
         }
 
         @media (max-width: 480px) {
+          .header-content {
+            padding: 0 var(--spacing-mobile-sm);
+          }
+          
           .header-title h1 {
             font-size: 1.2rem;
           }
@@ -323,6 +395,28 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle }) => {
 
           .refresh-btn span {
             display: none;
+          }
+          
+          .refresh-btn {
+            padding: var(--spacing-mobile-sm);
+            min-width: var(--touch-target-comfortable);
+          }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .header {
+            height: 60px;
+          }
+          
+          .header-title h1 {
+            font-size: 1.1rem;
+          }
+          
+          .notification-btn,
+          .profile-btn {
+            width: 36px;
+            height: 36px;
           }
         }
       `}</style>

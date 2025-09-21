@@ -536,12 +536,15 @@ const DataTable = ({ data, loading }) => {
         .table-wrapper {
           overflow-x: auto;
           margin-bottom: var(--spacing-lg);
+          -webkit-overflow-scrolling: touch;
+          position: relative;
         }
 
         .data-table {
           width: 100%;
           border-collapse: collapse;
           font-family: var(--font-secondary);
+          min-width: 600px;
         }
 
         .table-header-cell {
@@ -554,6 +557,9 @@ const DataTable = ({ data, loading }) => {
           font-size: 0.9rem;
           text-transform: uppercase;
           letter-spacing: 1px;
+          position: sticky;
+          top: 0;
+          z-index: 10;
         }
 
         .table-header-cell.sortable {
@@ -672,23 +678,124 @@ const DataTable = ({ data, loading }) => {
           color: var(--text-secondary);
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .table-header {
             flex-direction: column;
-            gap: var(--spacing-md);
+            gap: var(--spacing-mobile-md);
           }
 
           .table-controls {
             flex-wrap: wrap;
             width: 100%;
+            gap: var(--spacing-mobile-sm);
           }
 
           .search-input {
             width: 100%;
+            font-size: 16px;
+          }
+          
+          .filter-btn,
+          .export-btn {
+            min-height: var(--touch-target-comfortable);
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
           }
 
           .filters-grid {
             grid-template-columns: 1fr;
+            gap: var(--spacing-mobile-md);
+          }
+          
+          .filter-select {
+            font-size: 16px;
+            min-height: var(--touch-target-comfortable);
+          }
+          
+          .table-wrapper {
+            margin-bottom: var(--spacing-mobile-lg);
+          }
+          
+          .data-table {
+            min-width: 800px;
+          }
+          
+          .table-header-cell {
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
+            font-size: 0.8rem;
+          }
+          
+          .table-cell {
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
+            font-size: 0.85rem;
+          }
+          
+          .action-btn {
+            width: var(--touch-target-comfortable);
+            height: var(--touch-target-comfortable);
+          }
+          
+          .pagination {
+            gap: var(--spacing-mobile-md);
+          }
+          
+          .pagination-btn {
+            min-height: var(--touch-target-comfortable);
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .table-header {
+            gap: var(--spacing-mobile-sm);
+          }
+          
+          .table-controls {
+            gap: var(--spacing-mobile-xs);
+          }
+          
+          .search-container {
+            order: -1;
+            width: 100%;
+          }
+          
+          .filter-btn span,
+          .export-btn span {
+            display: none;
+          }
+          
+          .data-table {
+            min-width: 700px;
+          }
+          
+          .table-header-cell {
+            padding: var(--spacing-mobile-xs) var(--spacing-mobile-sm);
+            font-size: 0.75rem;
+          }
+          
+          .table-cell {
+            padding: var(--spacing-mobile-xs) var(--spacing-mobile-sm);
+            font-size: 0.8rem;
+          }
+          
+          .pagination-info {
+            font-size: 0.8rem;
+          }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .table-header {
+            flex-direction: row;
+            align-items: center;
+          }
+          
+          .table-controls {
+            flex-wrap: nowrap;
+          }
+          
+          .search-input {
+            width: 200px;
           }
         }
       `}</style>

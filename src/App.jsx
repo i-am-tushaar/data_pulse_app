@@ -9,7 +9,8 @@ import Chatbot from './components/Chatbot';
 
 const App = () => {
   const [activeView, setActiveView] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Desktop sidebar state
   const [chatbotOpen, setChatbotOpen] = useState(false);
   
   // Use our custom hook for data management
@@ -17,6 +18,10 @@ const App = () => {
 
   const handleMenuToggle = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleDesktopSidebarToggle = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   const handleChatbotToggle = () => {
@@ -247,8 +252,17 @@ const App = () => {
   return (
     <div className="app">
       {/* Sidebar */}
-      <div className={`sidebar-wrapper ${sidebarOpen ? 'open' : ''}`}>
-        <Sidebar activeView={activeView} setActiveView={setActiveView} />
+      <div className={`sidebar-wrapper ${
+        sidebarOpen ? 'mobile-open' : ''
+      } ${
+        sidebarCollapsed ? 'desktop-collapsed' : ''
+      }`}>
+        <Sidebar 
+          activeView={activeView} 
+          setActiveView={setActiveView} 
+          isCollapsed={sidebarCollapsed}
+          onDesktopToggle={handleDesktopSidebarToggle}
+        />
       </div>
 
       {/* Mobile Overlay */}
@@ -265,12 +279,18 @@ const App = () => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className={`main-content ${chatbotOpen ? 'chatbot-open' : ''}`}>
+      <div className={`main-content ${
+        chatbotOpen ? 'chatbot-open' : ''
+      } ${
+        sidebarCollapsed ? 'sidebar-collapsed' : ''
+      }`}>
         <Header 
           onRefresh={refresh}
           lastUpdated={lastUpdated}
           loading={loading}
           onMenuToggle={handleMenuToggle}
+          onDesktopSidebarToggle={handleDesktopSidebarToggle}
+          sidebarCollapsed={sidebarCollapsed}
         />
         
         <main className="content-area">
@@ -307,6 +327,7 @@ const App = () => {
           background: var(--bg-primary);
           color: var(--text-primary);
           font-family: var(--font-secondary);
+          position: relative;
         }
 
         .sidebar-wrapper {
@@ -315,7 +336,11 @@ const App = () => {
           left: 0;
           height: 100vh;
           z-index: 1000;
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, width 0.3s ease;
+        }
+
+        .sidebar-wrapper.desktop-collapsed {
+          width: 70px;
         }
 
         .mobile-overlay {
@@ -324,8 +349,8 @@ const App = () => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(4px);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(8px);
           z-index: 999;
           display: none;
         }
@@ -343,10 +368,15 @@ const App = () => {
           margin-right: 380px;
         }
 
+        .main-content.sidebar-collapsed {
+          margin-left: 70px;
+        }
+
         .content-area {
           flex: 1;
           margin-top: 70px;
           overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
         }
 
         .view-container {
@@ -354,6 +384,7 @@ const App = () => {
           min-height: calc(100vh - 70px);
           max-width: 1400px;
           margin: 0 auto;
+          width: 100%;
         }
 
         .page-header {
@@ -369,6 +400,7 @@ const App = () => {
           min-height: 50vh;
           text-align: center;
           gap: var(--spacing-lg);
+          padding: var(--spacing-lg);
         }
 
         .coming-soon h2 {
@@ -391,13 +423,18 @@ const App = () => {
           margin-bottom: var(--spacing-xs);
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .sidebar-wrapper {
             transform: translateX(-100%);
           }
 
-          .sidebar-wrapper.open {
+          .sidebar-wrapper.mobile-open {
             transform: translateX(0);
+          }
+
+          .sidebar-wrapper.desktop-collapsed {
+            width: 250px; /* Reset to full width on mobile */
           }
 
           .mobile-overlay {
@@ -405,17 +442,23 @@ const App = () => {
           }
 
           .main-content,
-          .main-content.chatbot-open {
+          .main-content.chatbot-open,
+          .main-content.sidebar-collapsed {
             margin-left: 0;
             margin-right: 0;
           }
 
           .view-container {
-            padding: var(--spacing-md);
+            padding: var(--spacing-mobile-md);
+          }
+
+          .coming-soon {
+            padding: var(--spacing-mobile-lg);
+            min-height: 40vh;
           }
 
           .coming-soon h2 {
-            font-size: 2rem;
+            font-size: 1.8rem;
           }
 
           .coming-soon p {
@@ -424,8 +467,24 @@ const App = () => {
         }
 
         @media (max-width: 480px) {
+          .view-container {
+            padding: var(--spacing-mobile-sm);
+          }
+          
           .coming-soon h2 {
             font-size: 1.5rem;
+          }
+          
+          .coming-soon p {
+            font-size: 0.9rem;
+          }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .coming-soon {
+            min-height: 30vh;
+            padding: var(--spacing-mobile-md);
           }
         }
       `}</style>

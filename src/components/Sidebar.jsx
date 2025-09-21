@@ -1,8 +1,8 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, BarChart3, Settings, User, Zap } from 'lucide-react';
 
-const Sidebar = ({ activeView, setActiveView }) => {
+const Sidebar = ({ activeView, setActiveView, isCollapsed, onDesktopToggle }) => {
   const menuItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Dashboard' },
     { id: 'analytics', icon: Activity, label: 'Analytics' },
@@ -13,9 +13,9 @@ const Sidebar = ({ activeView, setActiveView }) => {
 
   return (
     <motion.aside 
-      className="sidebar"
+      className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}
       initial={{ x: -250 }}
-      animate={{ x: 0 }}
+      animate={{ x: 0, width: isCollapsed ? 70 : 250 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="sidebar-content">
@@ -27,7 +27,19 @@ const Sidebar = ({ activeView, setActiveView }) => {
             transition={{ type: "spring", stiffness: 300 }}
           >
             <Zap className="logo-icon" />
-            <span className="logo-text">DATAPULSE</span>
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span 
+                  className="logo-text"
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 'auto' }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  DATAPULSE
+                </motion.span>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
 
@@ -40,16 +52,29 @@ const Sidebar = ({ activeView, setActiveView }) => {
             return (
               <motion.button
                 key={item.id}
-                className={`nav-item ${isActive ? 'active' : ''}`}
+                className={`nav-item ${isActive ? 'active' : ''} ${isCollapsed ? 'collapsed' : ''}`}
                 onClick={() => setActiveView(item.id)}
-                whileHover={{ x: 5 }}
+                whileHover={{ x: isCollapsed ? 0 : 5 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.3 }}
+                title={isCollapsed ? item.label : ''}
               >
                 <Icon className="nav-icon" />
-                <span className="nav-label">{item.label}</span>
+                <AnimatePresence>
+                  {!isCollapsed && (
+                    <motion.span 
+                      className="nav-label"
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: 'auto' }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
                 {isActive && (
                   <motion.div
                     className="nav-indicator"
@@ -63,12 +88,22 @@ const Sidebar = ({ activeView, setActiveView }) => {
         </nav>
 
         {/* Status */}
-        <div className="sidebar-status">
-          <div className="status-item">
-            <div className="status-dot"></div>
-            <span>System Online</span>
-          </div>
-        </div>
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div 
+              className="sidebar-status"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="status-item">
+                <div className="status-dot"></div>
+                <span>System Online</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <style jsx>{`
@@ -83,6 +118,12 @@ const Sidebar = ({ activeView, setActiveView }) => {
           top: 0;
           z-index: 100;
           overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          transition: width 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+          width: 70px;
         }
 
         .sidebar-content {
@@ -143,6 +184,7 @@ const Sidebar = ({ activeView, setActiveView }) => {
           position: relative;
           width: 100%;
           text-align: left;
+          min-height: var(--touch-target-min);
         }
 
         .nav-item:hover {
@@ -200,14 +242,77 @@ const Sidebar = ({ activeView, setActiveView }) => {
           animation: pulse 2s infinite;
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .sidebar {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
+            z-index: 1001;
+            width: 250px; /* Always full width on mobile */
           }
           
           .sidebar.open {
             transform: translateX(0);
+          }
+          
+          .sidebar.collapsed {
+            width: 250px; /* Reset collapsed state on mobile */
+          }
+          
+          .sidebar-content {
+            padding: var(--spacing-mobile-lg);
+          }
+          
+          .logo-section {
+            margin-bottom: var(--spacing-mobile-xl);
+          }
+          
+          .logo-text {
+            font-size: 1.3rem;
+          }
+          
+          .nav-item {
+            padding: var(--spacing-mobile-md);
+            min-height: var(--touch-target-comfortable);
+          }
+          
+          .nav-item.collapsed {
+            justify-content: flex-start; /* Reset collapsed styles on mobile */
+            padding: var(--spacing-mobile-md);
+          }
+          
+          .nav-label {
+            font-size: 1rem;
+          }
+          
+          .nav-icon {
+            width: 22px;
+            height: 22px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .sidebar {
+            width: 280px;
+          }
+          
+          .logo-text {
+            font-size: 1.2rem;
+          }
+        }
+
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .sidebar-content {
+            padding: var(--spacing-mobile-md);
+          }
+          
+          .logo-section {
+            margin-bottom: var(--spacing-mobile-lg);
+          }
+          
+          .nav-item {
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
           }
         }
       `}</style>

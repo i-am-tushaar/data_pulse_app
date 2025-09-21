@@ -236,6 +236,17 @@ const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeVie
             50% { transform: scale(1.2); opacity: 0.1; }
             100% { transform: scale(1); opacity: 0.3; }
           }
+          
+          /* Mobile positioning for chatbot toggle */
+          @media (max-width: 768px) {
+            .chatbot-toggle {
+              bottom: 20px;
+              right: 20px;
+              width: var(--touch-target-comfortable);
+              height: var(--touch-target-comfortable);
+              z-index: 1001;
+            }
+          }
         `}</style>
       </motion.div>
     );
@@ -382,6 +393,7 @@ const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeVie
           align-items: center;
           justify-content: space-between;
           background: rgba(0, 255, 255, 0.05);
+          min-height: 70px;
         }
 
         .header-content {
@@ -466,6 +478,8 @@ const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeVie
           color: var(--text-secondary);
           cursor: pointer;
           transition: all 0.3s ease;
+          min-height: var(--touch-target-min);
+          min-width: var(--touch-target-min);
         }
 
         .close-btn:hover {
@@ -682,6 +696,92 @@ const Chatbot = ({ onUpdateDashboard, isOpen, onToggle, dashboardData, activeVie
           .chatbot-container {
             width: 100%;
             right: 0;
+            border-left: none;
+            border-top: var(--border-glass);
+          }
+          
+          .chatbot-header {
+            padding: var(--spacing-mobile-md);
+            min-height: 60px;
+          }
+          
+          .bot-avatar {
+            width: 36px;
+            height: 36px;
+          }
+          
+          .header-text h3 {
+            font-size: 1rem;
+          }
+          
+          .close-btn {
+            width: var(--touch-target-comfortable);
+            height: var(--touch-target-comfortable);
+          }
+          
+          .messages-container {
+            padding: var(--spacing-mobile-md);
+            gap: var(--spacing-mobile-md);
+          }
+          
+          .message-bubble {
+            max-width: 85%;
+            font-size: 0.9rem;
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
+          }
+          
+          .chat-input-form {
+            padding: var(--spacing-mobile-md);
+          }
+          
+          .chat-input {
+            font-size: 16px;
+            padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
+          }
+          
+          .send-btn {
+            width: var(--touch-target-comfortable);
+            height: var(--touch-target-comfortable);
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .chatbot-header {
+            padding: var(--spacing-mobile-sm);
+          }
+          
+          .header-text h3 {
+            font-size: 0.9rem;
+          }
+          
+          .status {
+            font-size: 0.7rem;
+          }
+          
+          .messages-container {
+            padding: var(--spacing-mobile-sm);
+          }
+          
+          .message-bubble {
+            font-size: 0.85rem;
+            max-width: 90%;
+          }
+          
+          .chat-input-form {
+            padding: var(--spacing-mobile-sm);
+          }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .chatbot-header {
+            min-height: 50px;
+            padding: var(--spacing-mobile-sm);
+          }
+          
+          .bot-avatar {
+            width: 32px;
+            height: 32px;
           }
         }
       `}</style>

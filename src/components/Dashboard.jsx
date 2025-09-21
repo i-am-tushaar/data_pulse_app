@@ -95,6 +95,7 @@ const Dashboard = ({ data, loading, onRefresh }) => {
         .dashboard-content {
           max-width: 1400px;
           margin: 0 auto;
+          width: 100%;
         }
 
         .welcome-section {
@@ -210,20 +211,22 @@ const Dashboard = ({ data, loading, onRefresh }) => {
           100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .dashboard {
-            padding: var(--spacing-md);
+            padding: var(--spacing-mobile-md);
           }
 
           .welcome-section {
             flex-direction: column;
-            gap: var(--spacing-lg);
+            gap: var(--spacing-mobile-lg);
             text-align: center;
-            padding: var(--spacing-lg);
+            padding: var(--spacing-mobile-lg);
+            margin-bottom: var(--spacing-mobile-xl);
           }
 
           .welcome-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
           }
 
           .welcome-subtitle {
@@ -232,10 +235,26 @@ const Dashboard = ({ data, loading, onRefresh }) => {
 
           .status-indicators {
             align-items: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-mobile-md);
+          }
+          
+          .status-item {
+            font-size: 0.8rem;
+          }
+
+          .dashboard-section {
+            margin-bottom: var(--spacing-mobile-xl);
+          }
+          
+          .section-header {
+            margin-bottom: var(--spacing-mobile-lg);
           }
 
           .section-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
           }
 
           .section-subtitle {
@@ -244,6 +263,14 @@ const Dashboard = ({ data, loading, onRefresh }) => {
         }
 
         @media (max-width: 480px) {
+          .dashboard {
+            padding: var(--spacing-mobile-sm);
+          }
+          
+          .welcome-section {
+            padding: var(--spacing-mobile-md);
+          }
+          
           .welcome-title {
             font-size: 1.5rem;
           }
@@ -253,7 +280,33 @@ const Dashboard = ({ data, loading, onRefresh }) => {
           }
 
           .section-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+          }
+          
+          .section-subtitle {
+            font-size: 0.8rem;
+          }
+          
+          .status-indicators {
+            gap: var(--spacing-mobile-sm);
+          }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .welcome-section {
+            flex-direction: row;
+            text-align: left;
+            padding: var(--spacing-mobile-md);
+          }
+          
+          .status-indicators {
+            flex-direction: column;
+            align-items: flex-end;
+          }
+          
+          .welcome-title {
+            font-size: 1.6rem;
           }
         }
       `}</style>

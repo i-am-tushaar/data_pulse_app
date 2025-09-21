@@ -282,9 +282,26 @@ const ChartsGrid = ({ data, loading }) => {
             justify-content: center;
           }
 
+          /* Mobile Responsive Styles */
           @media (max-width: 768px) {
             .charts-grid {
               grid-template-columns: 1fr;
+              gap: var(--spacing-mobile-md);
+              margin-bottom: var(--spacing-mobile-xl);
+            }
+            
+            .chart-skeleton {
+              height: 300px;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .charts-grid {
+              gap: var(--spacing-mobile-sm);
+            }
+            
+            .chart-skeleton {
+              height: 280px;
             }
           }
         `}</style>
@@ -374,17 +391,52 @@ const ChartsGrid = ({ data, loading }) => {
         @media (max-width: 768px) {
           .charts-grid {
             grid-template-columns: 1fr;
-            gap: var(--spacing-md);
+            gap: var(--spacing-mobile-md);
           }
 
           .chart-container {
-            padding: var(--spacing-md);
+            padding: var(--spacing-mobile-md);
+          }
+          
+          .chart-header {
+            margin-bottom: var(--spacing-mobile-lg);
+          }
+          
+          .chart-title {
+            font-size: 1.1rem;
+          }
+          
+          .chart-subtitle {
+            font-size: 0.75rem;
           }
         }
 
         @media (max-width: 480px) {
+          .charts-grid {
+            gap: var(--spacing-mobile-sm);
+          }
+          
+          .chart-container {
+            padding: var(--spacing-mobile-sm);
+          }
+          
           .chart-title {
             font-size: 1rem;
+          }
+          
+          .chart-subtitle {
+            font-size: 0.7rem;
+          }
+        }
+        
+        /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+          .chart-container {
+            padding: var(--spacing-mobile-sm);
+          }
+          
+          .chart-header {
+            margin-bottom: var(--spacing-mobile-md);
           }
         }
       `}</style>
