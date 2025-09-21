@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, BarChart3, Settings, User, Zap } from 'lucide-react';
 
-const Sidebar = ({ activeView, setActiveView, isCollapsed, onDesktopToggle }) => {
+const Sidebar = ({ activeView, setActiveView, isCollapsed, onDesktopToggle, isOpen }) => {
   const menuItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Dashboard' },
     { id: 'analytics', icon: Activity, label: 'Analytics' },
@@ -13,7 +13,11 @@ const Sidebar = ({ activeView, setActiveView, isCollapsed, onDesktopToggle }) =>
 
   return (
     <motion.aside 
-      className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}
+      className={`sidebar ${
+        isCollapsed ? 'collapsed' : ''
+      } ${
+        isOpen ? 'open' : ''
+      }`}
       initial={{ x: -250 }}
       animate={{ x: 0, width: isCollapsed ? 70 : 250 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -245,18 +249,19 @@ const Sidebar = ({ activeView, setActiveView, isCollapsed, onDesktopToggle }) =>
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .sidebar {
-            transform: translateX(-100%);
+            transform: translateX(-100%) !important;
             transition: transform 0.3s ease;
             z-index: 1001;
-            width: 250px; /* Always full width on mobile */
+            width: 250px !important; /* Always full width on mobile */
           }
           
           .sidebar.open {
-            transform: translateX(0);
+            transform: translateX(0) !important;
           }
           
           .sidebar.collapsed {
-            width: 250px; /* Reset collapsed state on mobile */
+            width: 250px !important; /* Reset collapsed state on mobile */
+            transform: translateX(-100%) !important; /* Still hidden unless opened */
           }
           
           .sidebar-content {

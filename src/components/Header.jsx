@@ -333,12 +333,12 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle, onDesktopSideba
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
           .header {
-            left: 0;
+            left: 0 !important;
             padding: 0;
           }
           
           .header.sidebar-collapsed {
-            left: 0; /* Reset on mobile */
+            left: 0 !important; /* Reset on mobile */
           }
           
           .header-content {
@@ -347,13 +347,13 @@ const Header = ({ onRefresh, lastUpdated, loading, onMenuToggle, onDesktopSideba
           }
 
           .mobile-only {
-            display: flex;
+            display: flex !important;
             min-height: var(--touch-target-comfortable);
             min-width: var(--touch-target-comfortable);
           }
 
           .desktop-only {
-            display: none;
+            display: none !important;
           }
 
           .header-center {

@@ -444,15 +444,15 @@ const KPIGrid = ({ data, loading }) => {
         }
 
         /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
+        @media screen and (max-width: 768px) {
           .kpi-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr !important;
             gap: var(--spacing-mobile-md);
             margin-bottom: var(--spacing-mobile-xl);
           }
         }
         
-        @media (max-width: 480px) {
+        @media screen and (max-width: 480px) {
           .kpi-grid {
             gap: var(--spacing-mobile-sm);
           }

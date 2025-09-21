@@ -679,7 +679,7 @@ const DataTable = ({ data, loading }) => {
         }
 
         /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
+        @media screen and (max-width: 768px) {
           .table-header {
             flex-direction: column;
             gap: var(--spacing-mobile-md);
@@ -692,7 +692,7 @@ const DataTable = ({ data, loading }) => {
           }
 
           .search-input {
-            width: 100%;
+            width: 100% !important;
             font-size: 16px;
           }
           
@@ -714,6 +714,8 @@ const DataTable = ({ data, loading }) => {
           
           .table-wrapper {
             margin-bottom: var(--spacing-mobile-lg);
+            border-radius: var(--border-radius);
+            border: var(--border-glass);
           }
           
           .data-table {
@@ -723,6 +725,10 @@ const DataTable = ({ data, loading }) => {
           .table-header-cell {
             padding: var(--spacing-mobile-sm) var(--spacing-mobile-md);
             font-size: 0.8rem;
+            position: sticky;
+            top: 0;
+            background: var(--bg-glass-dark);
+            z-index: 10;
           }
           
           .table-cell {

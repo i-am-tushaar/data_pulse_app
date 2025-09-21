@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardData } from './hooks/useDashboardData';
 import Sidebar from './components/Sidebar';
@@ -12,9 +12,26 @@ const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Desktop sidebar state
   const [chatbotOpen, setChatbotOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
   // Use our custom hook for data management
   const { data, loading, error, lastUpdated, refresh } = useDashboardData(30000);
+
+  // Handle window resize to detect mobile/desktop
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false); // Always close sidebar when switching to mobile
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call on mount
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleMenuToggle = () => {
     setSidebarOpen(!sidebarOpen);
@@ -262,6 +279,7 @@ const App = () => {
           setActiveView={setActiveView} 
           isCollapsed={sidebarCollapsed}
           onDesktopToggle={handleDesktopSidebarToggle}
+          isOpen={sidebarOpen}
         />
       </div>
 
@@ -427,6 +445,7 @@ const App = () => {
         @media (max-width: 768px) {
           .sidebar-wrapper {
             transform: translateX(-100%);
+            width: 250px; /* Always full width on mobile */
           }
 
           .sidebar-wrapper.mobile-open {
@@ -435,6 +454,7 @@ const App = () => {
 
           .sidebar-wrapper.desktop-collapsed {
             width: 250px; /* Reset to full width on mobile */
+            transform: translateX(-100%); /* Still hidden on mobile */
           }
 
           .mobile-overlay {

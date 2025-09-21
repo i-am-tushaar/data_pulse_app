@@ -390,7 +390,7 @@ const ChartsGrid = ({ data, loading }) => {
 
         @media (max-width: 768px) {
           .charts-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr !important;
             gap: var(--spacing-mobile-md);
           }
 
